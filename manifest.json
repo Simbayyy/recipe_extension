@@ -8,11 +8,18 @@
     "icons": {
       "48": "icons/icon-48.png"
     },
-  
-    "content_scripts": [
-      {
-        "matches": ["*://*.mozilla.org/*"],
-        "js": ["borderify.js"]
-      }
+
+    "background": {
+        "scripts": ["borderify.js"]
+    },
+
+    "page_action": {
+        "default_icon": "icons/icon-32.png",
+        "browser_style": true
+    },
+
+    "permissions": [
+        "activeTab",
+        "tabs"
     ]
   }
