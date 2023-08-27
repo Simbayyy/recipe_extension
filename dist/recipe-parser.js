@@ -1,11 +1,14 @@
 "use strict";
-const UNITS = /(?<unit>[mkc]?[gl]|cs|cc|c.à.s|c.à.c|cuill(?:e|è)re?s? à (?:café|soupe)|gousses?|poignées?|bouts?)/gi;
-const INGREDIENT = /(?<ingredient>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ’', -]+)/gi;
-const AMOUNT = /(?<amount>(?:\d+[\.,]?\d*(?:\s\d\/\d)?)|une?|deux)\s?/gi;
-const parse_expression = new RegExp(AMOUNT.source + UNITS.source + /(?:\n|\s)/.source + INGREDIENT.source, 'gi');
-const TIME = /(?<prefix>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ]*)[^\d]{0,3}(?<duree>\d+)\s(?<unite>(?:min|sec|h)|(?:minutes?|secondes?|heures?))/g;
-const WORDS_TO_REMOVE = / (bonnes?|grosses?|petites?|belles?|beaux?)/g;
-const text = document.body.innerText || document.body.textContent || "Error: no text found";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.format_parsed_recipe = exports.process_name = exports.select_time = exports.harmonize_units = exports.prepare_time = exports.prepare_ingredient = exports.parse_recipe = exports.remove_comments_and_parse = exports.WORDS_TO_REMOVE = exports.TIME = exports.parse_expression = exports.AMOUNT = exports.INGREDIENT = exports.UNITS = void 0;
+exports.UNITS = /(?<unit>[mkc]?[gl]|cs|cc|c.à.s|c.à.c|cuill(?:e|è)re?s? à (?:café|soupe)|gousses?|poignées?|bouts?)/gi;
+exports.INGREDIENT = /(?<ingredient>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ’', -]+)/gi;
+exports.AMOUNT = /(?<amount>(?:\d+[\.,]?\d*(?:\s\d\/\d)?)|une?|deux)\s?/gi;
+exports.parse_expression = new RegExp(exports.AMOUNT.source + exports.UNITS.source + /(?:\n|\s)/.source + exports.INGREDIENT.source, 'gi');
+exports.TIME = /(?<prefix>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ]*)[^\d]{0,3}(?<duree>\d+)\s(?<unite>(?:min|sec|h)|(?:minutes?|secondes?|heures?))/g;
+exports.WORDS_TO_REMOVE = / (bonnes?|grosses?|petites?|belles?|beaux?)/g;
+const no_text_error = "Error: no text found";
+const text = (document === null || document === void 0 ? void 0 : document.body.innerText) || (document === null || document === void 0 ? void 0 : document.body.textContent) || no_text_error;
 function remove_comments_and_parse(text) {
     const COMMENTS_To_REMOVE = /Comment\w.*/gi;
     let split_text = text.split(COMMENTS_To_REMOVE);
@@ -14,14 +17,16 @@ function remove_comments_and_parse(text) {
     });
     return split_results.find((elt) => { return elt[0].length != 0; }) || [[], []];
 }
+exports.remove_comments_and_parse = remove_comments_and_parse;
 function parse_recipe(text) {
-    let text_parsed = text.replace(WORDS_TO_REMOVE, "");
-    let match_ingredient = text_parsed.matchAll(parse_expression);
+    let text_parsed = text.replace(exports.WORDS_TO_REMOVE, "");
+    let match_ingredient = text_parsed.matchAll(exports.parse_expression);
     let match_array_ingredient = match_ingredient ? Array.from(match_ingredient) : [];
-    let match_time = text_parsed.matchAll(TIME);
+    let match_time = text_parsed.matchAll(exports.TIME);
     let match_array_time = match_ingredient ? Array.from(match_time) : [];
     return [match_array_ingredient, match_array_time];
 }
+exports.parse_recipe = parse_recipe;
 function prepare_ingredient(ingredient_data) {
     function convert_amount(amount_string) {
         let amount_number;
@@ -46,6 +51,7 @@ function prepare_ingredient(ingredient_data) {
     };
     return ingredient;
 }
+exports.prepare_ingredient = prepare_ingredient;
 function prepare_time(time_data) {
     let time = {
         prefix: time_data[1],
@@ -54,6 +60,7 @@ function prepare_time(time_data) {
     };
     return time;
 }
+exports.prepare_time = prepare_time;
 function harmonize_units(unit) {
     if (unit.match(/(cs|cuill(?:e|è)re?s? (à|de) (?:soupe|table)|c.à.s)/)) {
         return "cs";
@@ -74,6 +81,7 @@ function harmonize_units(unit) {
         return unit.replace(/s$/, "");
     }
 }
+exports.harmonize_units = harmonize_units;
 function select_time(times) {
     let maybe_total = times.find((time) => {
         time.prefix.match(/totale?s?/i);
@@ -106,6 +114,7 @@ function select_time(times) {
         }
     }
 }
+exports.select_time = select_time;
 function process_name(ingredient_name) {
     let LINTER = /^ ?((du|des? )|d\W)/;
     let AFTER_OU_ET = / (ou|et) .*/;
@@ -115,6 +124,7 @@ function process_name(ingredient_name) {
         .replace(AFTER_OU_ET, "")
         .replace(TRIM_SPACE, "");
 }
+exports.process_name = process_name;
 function format_parsed_recipe(recipe) {
     var _a;
     let ingredients = recipe[0].map(prepare_ingredient);
@@ -129,5 +139,8 @@ function format_parsed_recipe(recipe) {
         time: time
     };
 }
-let match_arrays = remove_comments_and_parse(text);
-console.log(format_parsed_recipe(match_arrays));
+exports.format_parsed_recipe = format_parsed_recipe;
+if (text != no_text_error) {
+    let match_arrays = remove_comments_and_parse(text);
+    console.log(format_parsed_recipe(match_arrays));
+}
