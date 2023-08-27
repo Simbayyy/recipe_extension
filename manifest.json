@@ -10,7 +10,7 @@
     },
 
     "background": {
-        "scripts": ["borderify.js"]
+        "scripts": ["extension-loader.js"]
     },
 
     "page_action": {
