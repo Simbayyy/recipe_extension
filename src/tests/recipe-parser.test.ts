@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { harmonize_units, select_time } from '../recipe-parser'
+import { harmonize_units, select_time } from '../recipe-parser-export'
 
 test('Unit harmonizing', () => {
     expect(harmonize_units("cuillers à soupe")).toEqual("cs");

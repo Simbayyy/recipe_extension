@@ -10,7 +10,7 @@
     },
 
     "background": {
-        "scripts": ["extension-loader.js"]
+        "scripts": ["dist/extension-loader.js"]
     },
 
     "page_action": {
