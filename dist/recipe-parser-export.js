@@ -1,16 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.format_parsed_recipe = exports.process_name = exports.select_time = exports.harmonize_units = exports.prepare_time = exports.prepare_ingredient = exports.parse_recipe = exports.remove_comments_and_parse = exports.WORDS_TO_REMOVE = exports.TIME = exports.parse_expression = exports.AMOUNT = exports.INGREDIENT = exports.UNITS = void 0;
+exports.format_parsed_recipe = exports.post_recipe = exports.process_name = exports.select_time = exports.harmonize_units = exports.prepare_time = exports.prepare_ingredient = exports.parse_recipe = exports.remove_comments_and_parse = exports.WORDS_TO_REMOVE = exports.TIME = exports.parse_expression = exports.AMOUNT = exports.INGREDIENT = exports.UNITS = void 0;
 exports.UNITS = /(?<unit>[mkc]?[gl]|cs|cc|c.à.s|c.à.c|cuill(?:e|è)re?s? à (?:café|soupe)|gousses?|poignées?|bouts?)/gi;
 exports.INGREDIENT = /(?<ingredient>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ’', -]+)/gi;
 exports.AMOUNT = /(?<amount>(?:\d+[\.,]?\d*(?:\s\d\/\d)?)|une?|deux)\s?/gi;
 exports.parse_expression = new RegExp(exports.AMOUNT.source + exports.UNITS.source + /(?:\n|\s)/.source + exports.INGREDIENT.source, 'gi');
 exports.TIME = /(?<prefix>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ]*)[^\d]{0,3}(?<duree>\d+)\s(?<unite>(?:min|sec|h)|(?:minutes?|secondes?|heures?))/g;
 exports.WORDS_TO_REMOVE = / (bonnes?|grosses?|petites?|belles?|beaux?)/g;
-const no_text_error = "Error: no text found";
-const text = (document === null || document === void 0 ? void 0 : document.body.innerText) || (document === null || document === void 0 ? void 0 : document.body.textContent) || no_text_error;
+let no_text_error = "Error: no text found";
+let text = (document === null || document === void 0 ? void 0 : document.body.innerText) || (document === null || document === void 0 ? void 0 : document.body.textContent) || no_text_error;
 function remove_comments_and_parse(text) {
-    const COMMENTS_To_REMOVE = /Comment\w.*/gi;
+    let COMMENTS_To_REMOVE = /Comment\w.*/gi;
     let split_text = text.split(COMMENTS_To_REMOVE);
     let split_results = split_text.map((fragment) => {
         return parse_recipe(fragment);
@@ -125,6 +125,19 @@ function process_name(ingredient_name) {
         .replace(TRIM_SPACE, "");
 }
 exports.process_name = process_name;
+function post_recipe(recipe, url) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onload = function () {
+        var response = JSON.parse(xhr.response);
+        if (response.status == 'success') {
+            console.log(`Successful post of ${recipe} to ${url}`);
+        }
+    };
+    xhr.send(JSON.stringify(recipe));
+}
+exports.post_recipe = post_recipe;
 function format_parsed_recipe(recipe) {
     var _a;
     let ingredients = recipe[0].map(prepare_ingredient);
@@ -140,7 +153,3 @@ function format_parsed_recipe(recipe) {
     };
 }
 exports.format_parsed_recipe = format_parsed_recipe;
-if (text != no_text_error) {
-    let match_arrays = remove_comments_and_parse(text);
-    console.log(format_parsed_recipe(match_arrays));
-}

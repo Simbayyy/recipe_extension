@@ -20,6 +20,8 @@
 
     "permissions": [
         "activeTab",
-        "tabs"
+        "tabs",
+        "http://localhost/",
+        "https://*.sbaillet.com/"
     ]
   }

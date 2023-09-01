@@ -130,7 +130,29 @@ function format_parsed_recipe(recipe) {
         time: time
     };
 }
+function post_recipe(recipe, url) {
+    try {
+        let xhr = new XMLHttpRequest();
+        console.log(`Sending ${JSON.stringify(recipe)} to ${url}`);
+        xhr.open("POST", url);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function () {
+            console.log(`Response retrieved from ${url}`);
+            if (xhr.status == 200) {
+                console.log(`Successful post to ${url}`);
+            }
+            else {
+                console.log(`Problem with posting to ${url}`);
+            }
+        };
+        xhr.send(JSON.stringify(recipe));
+    }
+    catch (_a) {
+        console.log("An error occurred");
+    }
+}
 if (text != no_text_error) {
-    let match_arrays = remove_comments_and_parse(text);
-    console.log(format_parsed_recipe(match_arrays));
+    let parsed_recipe = format_parsed_recipe(remove_comments_and_parse(text));
+    post_recipe(parsed_recipe, "http://localhost:3000/newrecipe");
+    post_recipe(parsed_recipe, "https://preprod.sbaillet.com/newrecipe");
 }

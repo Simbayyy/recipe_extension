@@ -1,16 +1,16 @@
-export const UNITS: RegExp = /(?<unit>[mkc]?[gl]|cs|cc|c.à.s|c.à.c|cuill(?:e|è)re?s? à (?:café|soupe)|gousses?|poignées?|bouts?)/gi
-export const INGREDIENT: RegExp = /(?<ingredient>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ’', -]+)/gi
-export const AMOUNT : RegExp = /(?<amount>(?:\d+[\.,]?\d*(?:\s\d\/\d)?)|une?|deux)\s?/gi
-export const parse_expression: RegExp = new RegExp(AMOUNT.source + UNITS.source + /(?:\n|\s)/.source + INGREDIENT.source, 'gi');
+export let UNITS: RegExp = /(?<unit>[mkc]?[gl]|cs|cc|c.à.s|c.à.c|cuill(?:e|è)re?s? à (?:café|soupe)|gousses?|poignées?|bouts?)/gi
+export let INGREDIENT: RegExp = /(?<ingredient>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ’', -]+)/gi
+export let AMOUNT : RegExp = /(?<amount>(?:\d+[\.,]?\d*(?:\s\d\/\d)?)|une?|deux)\s?/gi
+export let parse_expression: RegExp = new RegExp(AMOUNT.source + UNITS.source + /(?:\n|\s)/.source + INGREDIENT.source, 'gi');
 
-export const TIME : RegExp = /(?<prefix>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ]*)[^\d]{0,3}(?<duree>\d+)\s(?<unite>(?:min|sec|h)|(?:minutes?|secondes?|heures?))/g
+export let TIME : RegExp = /(?<prefix>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ]*)[^\d]{0,3}(?<duree>\d+)\s(?<unite>(?:min|sec|h)|(?:minutes?|secondes?|heures?))/g
 
-export const WORDS_TO_REMOVE: RegExp = / (bonnes?|grosses?|petites?|belles?|beaux?)/g
-const no_text_error = "Error: no text found"
-const text = document?.body.innerText || document?.body.textContent || no_text_error
+export let WORDS_TO_REMOVE: RegExp = / (bonnes?|grosses?|petites?|belles?|beaux?)/g
+let no_text_error = "Error: no text found"
+let text = document?.body.innerText || document?.body.textContent || no_text_error
 
 export function remove_comments_and_parse(text:string):RegExpMatchArray[][] {
-    const COMMENTS_To_REMOVE: RegExp = /Comment\w.*/gi
+    let COMMENTS_To_REMOVE: RegExp = /Comment\w.*/gi
     let split_text = text.split(COMMENTS_To_REMOVE)
     let split_results = split_text.map((fragment) => {
         return parse_recipe(fragment)
@@ -138,6 +138,18 @@ export interface Recipe {
     time: Time,
     ingredients: Ingredient[]
 }
+export function post_recipe(recipe: Recipe, url: string) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onload = function () {
+        var response = JSON.parse(xhr.response);
+        if (response.status == 'success') {
+            console.log(`Successful post of ${recipe} to ${url}`)
+        }
+    };
+    xhr.send(JSON.stringify(recipe));
+}
 
 export function format_parsed_recipe(recipe: RegExpMatchArray[][]): Recipe {
     let ingredients = recipe[0].map(prepare_ingredient)
@@ -154,9 +166,4 @@ export function format_parsed_recipe(recipe: RegExpMatchArray[][]): Recipe {
         ingredients: ingredients,
         time: time
     }
-}
-
-if (text != no_text_error) {
-    let match_arrays = remove_comments_and_parse(text)
-    console.log(format_parsed_recipe(match_arrays))    
 }
