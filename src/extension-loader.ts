@@ -24,5 +24,5 @@ browser.tabs.onUpdated.addListener((id, changeInfo, tab) => {
   });
 
 browser.pageAction.onClicked.addListener(() => {
-    browser.tabs.executeScript({file: 'borderify-script.js'})
+    browser.tabs.executeScript({file: 'dist/recipe-parser.js'})
 });

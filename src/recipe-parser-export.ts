@@ -1,16 +1,16 @@
-const UNITS: RegExp = /(?<unit>[mkc]?[gl]|cs|cc|c.à.s|c.à.c|cuill(?:e|è)re?s? à (?:café|soupe)|gousses?|poignées?|bouts?)/gi
-const INGREDIENT: RegExp = /(?<ingredient>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ’', -]+)/gi
-const AMOUNT : RegExp = /(?<amount>(?:\d+[\.,]?\d*(?:\s\d\/\d)?)|une?|deux)\s?/gi
-const parse_expression: RegExp = new RegExp(AMOUNT.source + UNITS.source + /(?:\n|\s)/.source + INGREDIENT.source, 'gi');
+export let UNITS: RegExp = /(?<unit>[mkc]?[gl]|cs|cc|c.à.s|c.à.c|cuill(?:e|è)re?s? à (?:café|soupe)|gousses?|poignées?|bouts?)/gi
+export let INGREDIENT: RegExp = /(?<ingredient>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ’', -]+)/gi
+export let AMOUNT : RegExp = /(?<amount>(?:\d+[\.,]?\d*(?:\s\d\/\d)?)|une?|deux)\s?/gi
+export let parse_expression: RegExp = new RegExp(AMOUNT.source + UNITS.source + /(?:\n|\s)/.source + INGREDIENT.source, 'gi');
 
-const TIME : RegExp = /(?<prefix>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ]*)[^\d]{0,3}(?<duree>\d+)\s(?<unite>(?:min|sec|h)|(?:minutes?|secondes?|heures?))/g
+export let TIME : RegExp = /(?<prefix>[A-Za-zÀ-ÖØ-öø-įĴ-őŔ-žǍ-ǰǴ-ǵǸ-țȞ-ȟȤ-ȳɃɆ-ɏḀ-ẞƀ-ƓƗ-ƚƝ-ơƤ-ƥƫ-ưƲ-ƶẠ-ỿ]*)[^\d]{0,3}(?<duree>\d+)\s(?<unite>(?:min|sec|h)|(?:minutes?|secondes?|heures?))/g
 
-const WORDS_TO_REMOVE: RegExp = / (bonnes?|grosses?|petites?|belles?|beaux?)/g
-const no_text_error = "Error: no text found"
-const text = document?.body.innerText || document?.body.textContent || no_text_error
+export let WORDS_TO_REMOVE: RegExp = / (bonnes?|grosses?|petites?|belles?|beaux?)/g
+let no_text_error = "Error: no text found"
+let text = document?.body.innerText || document?.body.textContent || no_text_error
 
-function remove_comments_and_parse(text:string):RegExpMatchArray[][] {
-    const COMMENTS_To_REMOVE: RegExp = /Comment\w.*/gi
+export function remove_comments_and_parse(text:string):RegExpMatchArray[][] {
+    let COMMENTS_To_REMOVE: RegExp = /Comment\w.*/gi
     let split_text = text.split(COMMENTS_To_REMOVE)
     let split_results = split_text.map((fragment) => {
         return parse_recipe(fragment)
@@ -18,7 +18,7 @@ function remove_comments_and_parse(text:string):RegExpMatchArray[][] {
     return split_results.find((elt) => {return elt[0].length != 0}) || [[],[]]
 }
 
-function parse_recipe(text:string) {
+export function parse_recipe(text:string) {
     let text_parsed = text.replace(WORDS_TO_REMOVE, "")
 
     let match_ingredient = text_parsed.matchAll(parse_expression) 
@@ -30,7 +30,7 @@ function parse_recipe(text:string) {
     return [match_array_ingredient, match_array_time]
 }
 
-function prepare_ingredient(ingredient_data:RegExpMatchArray){
+export function prepare_ingredient(ingredient_data:RegExpMatchArray){
 
     function convert_amount(amount_string:string): Number{
         let amount_number
@@ -55,7 +55,7 @@ function prepare_ingredient(ingredient_data:RegExpMatchArray){
     return ingredient
 }
 
-function prepare_time(time_data:RegExpMatchArray){
+export function prepare_time(time_data:RegExpMatchArray){
     let time = {
         prefix: time_data[1],
         time: Number(time_data[2]),
@@ -65,7 +65,7 @@ function prepare_time(time_data:RegExpMatchArray){
     return time
 }
 
-function harmonize_units(unit:string) {
+export function harmonize_units(unit:string) {
     if (unit.match(/(cs|cuill(?:e|è)re?s? (à|de) (?:soupe|table)|c.à.s)/)){
         return "cs"
     } else if (unit.match(/(cc|cuill(?:e|è)re?s? à café|c.à.c)/)){
@@ -81,7 +81,7 @@ function harmonize_units(unit:string) {
     }
 }
 
-function select_time(times: {time:Number, unit:string, prefix:string}[]) {
+export function select_time(times: {time:Number, unit:string, prefix:string}[]) {
     let maybe_total = times.find((time) => {
         time.prefix.match(/totale?s?/i)
     })
@@ -111,7 +111,7 @@ function select_time(times: {time:Number, unit:string, prefix:string}[]) {
     } 
 }
 
-function process_name(ingredient_name:string):string {
+export function process_name(ingredient_name:string):string {
     let LINTER: RegExp = /^ ?((du|des? )|d\W)/
     let AFTER_OU_ET: RegExp = / (ou|et) .*/
     let TRIM_SPACE: RegExp = / $/
@@ -121,25 +121,37 @@ function process_name(ingredient_name:string):string {
         .replace(TRIM_SPACE, "")
 }
 
-interface Time {
+export interface Time {
     time: Number,
     unit: string
 }
 
-interface Ingredient {
+export interface Ingredient {
     name: string,
     amount: Number,
     unit:string
 }
 
-interface Recipe {
+export interface Recipe {
     name: string,
     url: string,
     time: Time,
     ingredients: Ingredient[]
 }
+export function post_recipe(recipe: Recipe, url: string) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onload = function () {
+        var response = JSON.parse(xhr.response);
+        if (response.status == 'success') {
+            console.log(`Successful post of ${recipe} to ${url}`)
+        }
+    };
+    xhr.send(JSON.stringify(recipe));
+}
 
-function format_parsed_recipe(recipe: RegExpMatchArray[][]): Recipe {
+export function format_parsed_recipe(recipe: RegExpMatchArray[][]): Recipe {
     let ingredients = recipe[0].map(prepare_ingredient)
     let times = recipe[1].map(prepare_time)
     
@@ -154,31 +166,4 @@ function format_parsed_recipe(recipe: RegExpMatchArray[][]): Recipe {
         ingredients: ingredients,
         time: time
     }
-}
-
-function post_recipe(recipe: Recipe, url: string) {
-    try {
-        let xhr = new XMLHttpRequest();
-        console.log(`Sending ${JSON.stringify(recipe)} to ${url}`)
-        xhr.open("POST", url);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.onload = function () {
-            console.log(`Response retrieved from ${url}`)
-            if (xhr.status == 200) {
-                console.log(`Successful post to ${url}`)
-            } else {
-                console.log(`Problem with posting to ${url}`)
-            }
-        };
-        xhr.send(JSON.stringify(recipe));
-    } catch {
-        console.log("An error occurred")
-    }
-}
-
-if (text != no_text_error) {
-    let parsed_recipe = format_parsed_recipe(remove_comments_and_parse(text))
-    post_recipe(parsed_recipe, "http://localhost:3000/newrecipe")    
-    post_recipe(parsed_recipe, "https://preprod.sbaillet.com/newrecipe")    
-    post_recipe(parsed_recipe, "https://recipes.sbaillet.com/newrecipe")    
 }

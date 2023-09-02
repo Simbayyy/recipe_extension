@@ -10,7 +10,7 @@
     },
 
     "background": {
-        "scripts": ["extension-loader.js"]
+        "scripts": ["dist/extension-loader.js"]
     },
 
     "page_action": {
@@ -20,6 +20,8 @@
 
     "permissions": [
         "activeTab",
-        "tabs"
+        "tabs",
+        "http://localhost/",
+        "https://*.sbaillet.com/"
     ]
   }
